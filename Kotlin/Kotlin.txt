@@ -1,69 +1,72 @@
-open class ContaBancaria(val nome: String, var saldo: Double) {
-
-    open fun depositar(valor: Double) {
-        if (valor <= 0) {
-            println("Depósito inválido para $nome.")
-            return
+open class contaBancaria(val nome_titular: String, var saldo_conta : Double){
+    open fun depositar(valor: Double) : String{
+        if (valor <= 0){
+            return "Depósito inválido para $nome_titular."
         }
-        saldo += valor
-        println("$nome depositou R$%.2f".format(valor))
+        saldo_conta += valor
+        return "$nome_titular depositou ${"%.2f".format(valor)}"
+    }
+    open fun sacar(valor:Double) : String{
+        if (valor <= 0 || saldo_conta < valor){
+            return "Saldo insuficiente ou valor inválido para saque de $nome_titular"
+        }
+       saldo_conta -= valor
+        return "$nome_titular retirou ${"%.2f".format(valor)}"
     }
 
-    open fun sacar(valor: Double) {
-        if (valor <= 0 || saldo < valor) {
-            println("Saldo insuficiente ou valor inválido para saque de $nome.")
-            return
-        }
-        saldo -= valor
-        println("$nome sacou R$%.2f".format(valor))
+    open fun exibirSaldo() : String{
+        return "Saldo de $nome_titular é de ${"%.2f".format(saldo_conta)}"
     }
-
-    fun exibirSaldo() = println("Saldo de $nome: R$%.2f".format(saldo))
 }
 
-
-class ContaCorrente(nome: String, saldo: Double) : ContaBancaria(nome, saldo) {
+class contaCorrente(nome: String, saldo: Double) : contaBancaria(nome, saldo) {
     private val taxa = 5.0
 
-    override fun sacar(valor: Double) {
+    override fun sacar(valor: Double): String {
         val total = valor + taxa
-        if (saldo < total) {
-            println("Saldo insuficiente para saque de $nome.")
-            return
+        if (saldo_conta < total) {
+            return "Saldo insuficiente ou valor inválido para saque de $nome_titular."
+
         }
-        super.sacar(valor) // Chama o saque normal
-        saldo -= taxa // Aplica a taxa
-        println("Taxa de operação de R$%.2f cobrada de $nome.".format(taxa))
+        super.sacar(valor)
+        saldo_conta -= taxa
+        return "Taxa de operação cobrada de $nome_titular é de ${"%.2f".format(taxa)}"
+    }
+
+    override fun exibirSaldo(): String {
+        return super.exibirSaldo()
     }
 }
 
+class contaPoupanca(nome: String, saldo: Double) : contaBancaria(nome, saldo) {
+     private val rendimento = 0.02
 
-class ContaPoupanca(nome: String, saldo: Double) : ContaBancaria(nome, saldo) {
-    private val rendimento = 1.02
-
-    override fun depositar(valor: Double) {
+    override fun depositar(valor:Double): String{
         if (valor <= 0) {
-            println("Depósito inválido para $nome.")
-            return
+            return "Depósito inválido para $nome_titular."
         }
-        val total = valor * rendimento
-        super.depositar(total) // Usa a lógica da classe base, mas com o valor rendido
-        println("Depósito de R$%.2f com rendimento aplicado (Total: R$%.2f)".format(valor, total))
+        val total = valor + (valor * rendimento)
+        super.depositar(total)
+        return "Depósito de $valor com rendimento aplicado Total: ${"%.2f".format(valor, total)}"
     }
-}
+    override fun exibirSaldo(): String {
+        return super.exibirSaldo()
+    }
 
+}
 
 fun main() {
-    val contas: List<ContaBancaria> = listOf(
-        ContaCorrente("Carlos", 100.0),
-        ContaPoupanca("Mariana", 200.0)
+    val contas: List<contaBancaria> = listOf(
+        contaBancaria("Laura", 1000.00),
+        contaCorrente("Carlos", 100.0),
+        contaPoupanca("Mariana", 200.0)
     )
 
     for (conta in contas) {
-        conta.exibirSaldo()
-        conta.depositar(50.0)
-        conta.sacar(30.0)
-        conta.exibirSaldo()
-        println("==========")
+        println(conta.exibirSaldo())
+        println(conta.depositar(50.0))
+        println(conta.sacar(30.0))
+        println(conta.exibirSaldo())
     }
 }
+
