@@ -1,0 +1,69 @@
+open class ContaBancaria(val nome: String, var saldo: Double) {
+
+    open fun depositar(valor: Double) {
+        if (valor <= 0) {
+            println("Depósito inválido para $nome.")
+            return
+        }
+        saldo += valor
+        println("$nome depositou R$%.2f".format(valor))
+    }
+
+    open fun sacar(valor: Double) {
+        if (valor <= 0 || saldo < valor) {
+            println("Saldo insuficiente ou valor inválido para saque de $nome.")
+            return
+        }
+        saldo -= valor
+        println("$nome sacou R$%.2f".format(valor))
+    }
+
+    fun exibirSaldo() = println("Saldo de $nome: R$%.2f".format(saldo))
+}
+
+
+class ContaCorrente(nome: String, saldo: Double) : ContaBancaria(nome, saldo) {
+    private val taxa = 5.0
+
+    override fun sacar(valor: Double) {
+        val total = valor + taxa
+        if (saldo < total) {
+            println("Saldo insuficiente para saque de $nome.")
+            return
+        }
+        super.sacar(valor) // Chama o saque normal
+        saldo -= taxa // Aplica a taxa
+        println("Taxa de operação de R$%.2f cobrada de $nome.".format(taxa))
+    }
+}
+
+
+class ContaPoupanca(nome: String, saldo: Double) : ContaBancaria(nome, saldo) {
+    private val rendimento = 1.02
+
+    override fun depositar(valor: Double) {
+        if (valor <= 0) {
+            println("Depósito inválido para $nome.")
+            return
+        }
+        val total = valor * rendimento
+        super.depositar(total) // Usa a lógica da classe base, mas com o valor rendido
+        println("Depósito de R$%.2f com rendimento aplicado (Total: R$%.2f)".format(valor, total))
+    }
+}
+
+
+fun main() {
+    val contas: List<ContaBancaria> = listOf(
+        ContaCorrente("Carlos", 100.0),
+        ContaPoupanca("Mariana", 200.0)
+    )
+
+    for (conta in contas) {
+        conta.exibirSaldo()
+        conta.depositar(50.0)
+        conta.sacar(30.0)
+        conta.exibirSaldo()
+        println("==========")
+    }
+}
